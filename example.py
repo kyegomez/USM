@@ -1,5 +1,5 @@
 import torch
-from usm import USM
+from usm_torch import USM
 
 # Initialize model
 model = USM(
