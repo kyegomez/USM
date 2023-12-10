@@ -1,6 +1,5 @@
 import torch
-from torch import nn, Tensor
-import torchaudio
+from torch import Tensor, nn
 from torchaudio.models.conformer import Conformer
 
 
@@ -61,6 +60,10 @@ class USM(nn.Module):
         self.dropout = dropout
         self.use_group_norm = use_group_norm
         self.conv_first = conv_first
+        
+        # Ensure depthwise_conv_kernel_size is odd
+        if depthwise_conv_kernel_size % 2 == 0:
+            depthwise_conv_kernel_size += 1
 
         self.layers = nn.ModuleList([])
         for _ in range(depth):
@@ -72,7 +75,7 @@ class USM(nn.Module):
                         num_heads=heads,
                         ffn_dim=ff_dim,
                         num_layers=depth,
-                        depthwise_conv_kernel_size = depthwise_conv_kernel_size,
+                        depthwise_conv_kernel_size=depthwise_conv_kernel_size,
                         use_group_norm=use_group_norm,
                         convolution_first=conv_first,
                     ),
