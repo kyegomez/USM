@@ -60,7 +60,7 @@ class USM(nn.Module):
         self.dropout = dropout
         self.use_group_norm = use_group_norm
         self.conv_first = conv_first
-        
+
         # Ensure depthwise_conv_kernel_size is odd
         if depthwise_conv_kernel_size % 2 == 0:
             depthwise_conv_kernel_size += 1
