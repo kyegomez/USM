@@ -1,6 +1,93 @@
+
 import torch
 from torch import Tensor, nn
+from torch.nn import functional as F
 from torchaudio.models.conformer import Conformer
+
+
+def codebook(
+    speech_features: torch.Tensor, num_quantization_targets: int, dim: int
+) -> torch.Tensor:
+    """
+    This function creates a codebook for the BEST-RQ pre-training method.
+
+    Args:
+        speech_features (torch.Tensor): The 3D tensor of speech features to be quantized.
+                                        The dimensions should be (batch_size, sequence_length, feature_dim).
+        num_quantization_targets (int): The number of quantization targets.
+        dim (int): The dimension of the speech features and the codebook vectors.
+
+    Returns:
+        labels (torch.Tensor): The labels of the speech features, obtained by finding the closest codebook vector for each feature.
+    """
+
+    # Check if the input is a 3D tensor (batch_size, sequence_length, feature_dim)
+    if len(speech_features.shape) != 3:
+        raise ValueError(
+            "The input speech features should be a 3D tensor with dimensions (batch_size, sequence_length, feature_dim)."
+        )
+
+    # Get the dimensions of the speech features
+    batch_size, sequence_length, feature_dim = speech_features.size()
+
+    # Initialize the codebook vectors randomly
+    codebook_vectors = torch.randn(num_quantization_targets, dim)
+
+    # Initialize the projection matrix randomly and freeze it
+    projection_matrix = nn.Linear(dim, dim)
+    for param in projection_matrix.parameters():
+        param.requires_grad = False
+
+    # Project the speech features into the embedding space
+    projected_features = projection_matrix(speech_features.view(-1, dim)).view(
+        batch_size, sequence_length, dim
+    )
+
+    # Initialize a tensor to store the labels of the speech features
+    labels = torch.zeros(batch_size, sequence_length)
+
+    # For each projected feature, find the closest codebook vector
+    for i in range(batch_size):
+        for j in range(sequence_length):
+            # Calculate the cosine similarity between the projected feature and each codebook vector
+            similarities = F.cosine_similarity(
+                projected_features[i, j].unsqueeze(0), codebook_vectors
+            )
+
+            # Find the index of the codebook vector with the highest similarity
+            labels[i, j] = torch.argmax(similarities)
+
+    return labels
+
+
+def audio_to_codebook(
+    x: Tensor,
+    dim: int,
+    num_codebooks: int,
+):
+    """
+    Converts audio input to a codebook representation.
+
+    Args:
+        x (Tensor): The input tensor.
+        dim (int): The dimension of the input tensor.
+        num_codebooks (int): The number of codebooks to create.
+
+    Returns:
+        Tensor: The codebook representation of the audio input.
+    """
+    # Project the input to the codebook dimension
+    x = nn.Linear(dim, dim)(x)
+
+    # Cosine similarity
+    x = nn.CosineSimilarity(dim=1, eps=1e-6)(x, x)
+
+    # Codebook
+    return codebook(x, num_codebooks, dim)
+
+
+x = torch.randn(10, 100, 100)
+print(audio_to_codebook(x, 100, 100))
 
 
 class USMEncoder(nn.Module):
