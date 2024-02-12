@@ -285,4 +285,4 @@ class USM(nn.Module):
 
             return concat
 
-        return encoded  
+        return encoded
