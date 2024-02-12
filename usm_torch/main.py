@@ -3,8 +3,8 @@ from torch import Tensor, nn
 from torchaudio.models.conformer import Conformer
 
 
-class USM(nn.Module):
-    """Universal Speech Model (USM) is a model that can be used for any speech task.
+class USMEncoder(nn.Module):
+    """Universal Speech Model (USMEncoder) is a model that can be used for any speech task.
 
 
     Args:
@@ -21,8 +21,8 @@ class USM(nn.Module):
 
 
     Examples:
-    >>> from usm import USM
-    >>> model = USM(
+    >>> from usm import USMEncoder
+    >>> model = USMEncoder(
     ...     dim=80,
     ...     heads=4,
     ...     ff_dim=256,
@@ -51,7 +51,7 @@ class USM(nn.Module):
         *args,
         **kwargs
     ):
-        super(USM, self).__init__()
+        super(USMEncoder, self).__init__()
         self.dim = dim
         self.heads = heads
         self.ff_dim = ff_dim

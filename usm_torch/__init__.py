@@ -1,5 +1,5 @@
-from usm_torch.main import USM
+from usm_torch.main import USMEncoder
 
 __all__ = [
-    "USM",
+    "USMEncoder",
 ]

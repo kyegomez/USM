@@ -1,11 +1,11 @@
 import torch
 import pytest
-from usm_torch import USM
+from usm_torch import USMEncoder
 
 
 # Basic functionality tests
 def test_forward_pass():
-    model = USM(
+    model = USMEncoder(
         dim=80,
         heads=4,
         ff_dim=256,
@@ -24,7 +24,7 @@ def test_forward_pass():
 # Test different dropout rates
 @pytest.mark.parametrize("dropout", [0.0, 0.1, 0.5])
 def test_dropout_effect(dropout):
-    model = USM(
+    model = USMEncoder(
         dim=80,
         heads=4,
         ff_dim=256,
@@ -42,7 +42,7 @@ def test_dropout_effect(dropout):
 
 # Test invalid input shape
 def test_invalid_input_shape():
-    model = USM(
+    model = USMEncoder(
         dim=80,
         heads=4,
         ff_dim=256,
@@ -63,7 +63,7 @@ def test_invalid_input_shape():
 def test_different_depth():
     depths = [2, 4, 6]
     for depth in depths:
-        model = USM(
+        model = USMEncoder(
             dim=80,
             heads=4,
             ff_dim=256,
